@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recuperação de Português — Turma 201</title>
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --paper: #ffffff;
+    --ink: #2b2620;
+    --ink-soft: #5c554a;
+    --accent: #8a3324;
+    --accent-soft: #c45c3f;
+    --good: #2f6b4f;
+    --good-bg: #e6f0e9;
+    --bad: #9c2b21;
+    --bad-bg: #f5e3e0;
+    --line: #e1d9cc;
+    --gold: #b08d3e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(138,51,36,0.04), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(176,141,62,0.05), transparent 40%);
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 18px 80px;
+  }
+
+  header.app-header {
+    text-align: center;
+    padding: 18px 0 22px;
+    border-bottom: 3px double var(--gold);
+    margin-bottom: 24px;
+  }
+
+  header.app-header .escola {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  header.app-header h1 {
+    font-size: 1.5rem;
+    margin: 4px 0 6px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  header.app-header .sub {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* HOME */
+  .home-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  .home-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+    color: var(--accent);
+  }
+
+  .home-card p {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 6px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0 6px;
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    flex: 1;
+    min-width: 90px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .stat-box .num {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-box .label {
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .mode-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .mode-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mode-btn:hover, .mode-btn:active {
+    border-color: var(--accent-soft);
+    background: #fdf9f5;
+  }
+
+  .mode-btn .title {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 0.98rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mode-btn .desc {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+
+  .badge {
+    font-size: 0.68rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+
+  .reset-link {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .reset-link button {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* QUIZ SCREEN */
+  .progress-bar-outer {
+    height: 6px;
+    background: var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-soft), var(--accent));
+    transition: width 0.3s ease;
+  }
+
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+
+  .quiz-meta .tema-tag {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-style: italic;
+  }
+
+  .question-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    margin-bottom: 16px;
+  }
+
+  .question-card .qnum {
+    font-size: 0.78rem;
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .question-card .enunciado {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-line;
+    margin-bottom: 18px;
+  }
+
+  .alt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .alt-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 9px;
+    padding: 11px 13px;
+    cursor: pointer;
+    font-size: 0.93rem;
+    line-height: 1.45;
+    transition: all 0.15s ease;
+    background: var(--paper);
+  }
+
+  .alt-option:hover {
+    border-color: var(--accent-soft);
+    background: #fdf9f5;
+  }
+
+  .alt-option .letter {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .alt-option.disabled {
+    cursor: default;
+  }
+
+  .alt-option.correct {
+    background: var(--good-bg);
+    border-color: var(--good);
+  }
+  .alt-option.correct .letter {
+    background: var(--good);
+    border-color: var(--good);
+    color: #fff;
+  }
+
+  .alt-option.incorrect {
+    background: var(--bad-bg);
+    border-color: var(--bad);
+  }
+  .alt-option.incorrect .letter {
+    background: var(--bad);
+    border-color: var(--bad);
+    color: #fff;
+  }
+
+  .alt-option.muted {
+    opacity: 0.55;
+  }
+
+  .explicacao-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    display: none;
+  }
+
+  .explicacao-box.show {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .explicacao-box.right {
+    background: var(--good-bg);
+    border-left: 4px solid var(--good);
+    color: #1f4a37;
+  }
+
+  .explicacao-box.wrong {
+    background: var(--bad-bg);
+    border-left: 4px solid var(--bad);
+    color: #6e1f17;
+  }
+
+  .explicacao-box .head {
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 0.88rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .btn {
+    font-family: inherit;
+    border: none;
+    border-radius: 9px;
+    padding: 13px 18px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1;
+  }
+  .btn-primary:hover { background: #6e2818; }
+  .btn-primary:disabled {
+    background: #c9c2b6;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    background: none;
+    border: 1.5px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .btn-ghost:hover { border-color: var(--accent-soft); }
+
+  /* RESULT SCREEN */
+  .result-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px 22px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  .result-card .score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 6px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto 18px;
+  }
+
+  .result-card .score-circle .pct {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .result-card .score-circle .frac {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .result-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+
+  .result-card .msg {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+
+  .tema-breakdown {
+    text-align: left;
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+
+  .tema-breakdown h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .tema-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--bg);
+  }
+
+  .tema-row .tema-name {
+    color: var(--ink);
+    flex: 1;
+    padding-right: 10px;
+  }
+
+  .tema-row .tema-score {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .tema-row .tema-score.good { color: var(--good); }
+  .tema-row .tema-score.bad { color: var(--bad); }
+
+  .result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .print-btn {
+    display: none;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .app-header, .home-card, .reset-link, .nav-row, .quiz-meta, .progress-bar-outer { display: none !important; }
+    .question-card { box-shadow: none; border: 1px solid #999; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="app-header">
+    <div class="escola">Escola Vinícius de Morais</div>
+    <h1>Recuperação de Português</h1>
+    <div class="sub">Turma 201 · Banco de questões para estudo</div>
+  </header>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <h2>Como você quer estudar?</h2>
+      <p>Este banco reúne 79 questões sobre os temas da recuperação: preconceito linguístico, variação linguística, figuras de linguagem e período composto (orações substantivas).</p>
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="num">79</div>
+          <div class="label">Questões</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="stat-acertos">0</div>
+          <div class="label">Acertos</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="stat-feitas">0</div>
+          <div class="label">Já feitas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-grid">
+      <button class="mode-btn" onclick="startQuiz('todas')">
+        <div class="title">Simulado completo <span class="badge">79 questões</span></div>
+        <div class="desc">Todas as questões embaralhadas, com explicação após cada resposta.</div>
+      </button>
+      <button class="mode-btn" onclick="startQuiz('rapido')">
+        <div class="title">Treino rápido <span class="badge">15 questões</span></div>
+        <div class="desc">Uma seleção aleatória menor, ideal para revisar em poucos minutos.</div>
+      </button>
+      <button class="mode-btn" onclick="startQuiz('erros')">
+        <div class="title">Revisar erros <span class="badge" id="erros-count">0</span></div>
+        <div class="desc">Refaça apenas as questões que você errou nas tentativas anteriores.</div>
+      </button>
+    </div>
+
+    <div class="reset-link">
+      <button onclick="resetProgress()">Zerar meu progresso salvo</button>
+    </div>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section class="screen" id="screen-quiz">
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="quiz-meta">
+      <span id="meta-counter">Questão 1 de 79</span>
+      <span class="tema-tag" id="meta-tema">Tema</span>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <div class="qnum" id="qnum-label">QUESTÃO 1</div>
+      <div class="enunciado" id="enunciado-text"></div>
+      <div class="alt-list" id="alt-list"></div>
+      <div class="explicacao-box" id="explicacao-box">
+        <div class="head" id="explicacao-head"></div>
+        <div id="explicacao-text"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goHome()">← Sair</button>
+      <button class="btn btn-primary" id="next-btn" disabled onclick="nextQuestion()">Responda para continuar</button>
+    </div>
+  </section>
+
+  <!-- RESULT SCREEN -->
+  <section class="screen" id="screen-result">
+    <div class="result-card">
+      <div class="score-circle">
+        <div class="pct" id="result-pct">0%</div>
+        <div class="frac" id="result-frac">0/0</div>
+      </div>
+      <h2 id="result-title">Resultado</h2>
+      <div class="msg" id="result-msg"></div>
+
+      <div class="tema-breakdown">
+        <h3>Desempenho por tema</h3>
+        <div id="tema-list"></div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-ghost" onclick="goHome()">Início</button>
+        <button class="btn btn-primary" onclick="restartSame()">Refazer</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const QUESTOES = [{"tema": "Sociolinguística / Preconceito linguístico", "enunciado": "\"A gente fomos no mercado e compremos as coisa que tava na lista. Chegando lá, o moço do caixa falou que o preço do quilo do feijão tinha subido por causa da seca no Nordeste. Mas a gente levou assim mesmo, porque sem feijão não dá pra passar a semana.\"\n\nA variante linguística empregada pelo falante no texto caracteriza-se por marcas de concordância verbal e nominal que divergem da norma-padrão. Do ponto de vista da sociolinguística, a atitude ideal do interlocutor diante dessa fala deve ser a de", "alternativas": {"A": "corrigir os desvios gramaticais imediatamente para garantir a eficácia da comunicação.", "B": "reconhecer a legitimidade da variedade, associando-a à identidade cultural do falante.", "C": "considerar a fala como um erro crasso decorrente da falta de escolarização formal.", "D": "priorizar o uso da norma-padrão em qualquer contexto de interação social do cotidiano.", "E": "classificar o discurso como dialeto regional exclusivo de determinadas áreas do país."}, "correta": "B", "explicacao": "A sociolinguística trata toda variedade linguística como um sistema legítimo e funcional, não como erro. A fala não-padrão expressa identidade social e cultural do falante; corrigir, estigmatizar ou tratar como 'erro' (alternativas A, C, D, E) reproduz o preconceito linguístico que autores como Marcos Bagno criticam."}, {"tema": "Período composto / Oração subordinada substantiva", "enunciado": "Considere a frase abaixo:\nÉ fundamental que a comunidade científica valide os resultados da pesquisa antes da publicação.\n\nA oração sublinhada exerce, em relação à oração principal, a função sintática de", "alternativas": {"A": "objeto direto, pois complementa o sentido do verbo \"ser\", que exige transição.", "B": "predicativo do sujeito, uma vez que qualifica o termo \"comunidade científica\".", "C": "sujeito, visto que o verbo da oração principal é impessoal e introduz uma necessidade.", "D": "complemento nominal, pois integra o sentido do adjetivo abstrato \"fundamental\".", "E": "objeto indireto, dado que se liga a um elemento antecedente de valor paciente."}, "correta": "C", "explicacao": "Em construções do tipo \"É fundamental/necessário/preciso que...\", a oração subordinada substantiva funciona como sujeito da oração principal (impessoal). Equivale a \"Que a comunidade científica valide os resultados é fundamental\". Por isso é subjetiva."}, {"tema": "Figuras de linguagem / Metáfora", "enunciado": "\"Seus olhos são poços de petróleo em chamas; quem neles mergulha, consome-se na própria riqueza.\"\n\nNo fragmento acima, a construção poética baseia-se na fusão de elementos semânticos distantes para criar um efeito expressivo. A figura de linguagem que estrutura o período é a", "alternativas": {"A": "catacrese, pois utiliza um termo técnico fora de seu campo original de significação.", "B": "metonímia, já que substitui a causa pelo efeito na descrição do sentimento amoroso.", "C": "metáfora, pois estabelece uma relação de identidade implícita baseada na analogia.", "D": "antítese, visto que contrapõe a ideia de água contida no poço com a ideia de fogo.", "E": "hipérbole, porque exagera as proporções físicas do olhar do ser amado na narrativa."}, "correta": "C", "explicacao": "A metáfora cria uma relação de identidade implícita entre dois elementos sem usar conectivo comparativo (\"como\"): \"olhos são poços de petróleo\" funde diretamente os dois campos semânticos. Não há contraste de opostos (não é antítese) nem exagero de proporção física (não é hipérbole)."}, {"tema": "Preconceito linguístico / Marcos Bagno", "enunciado": "Assinale a alternativa que apresenta uma afirmação correta sobre o conceito de \"preconceito linguístico\", conforme definido pelo linguista Marcos Bagno.", "alternativas": {"A": "Trata-se de um fenômeno estritamente gramatical, que visa preservar a pureza do idioma.", "B": "Baseia-se na crença errônea de que as variedades urbanas de prestígio são logicamente superiores.", "C": "Manifesta-se apenas quando há incompreensão mútua entre falantes de regiões diferentes.", "D": "Decorre da ausência de regras estruturais bem definidas nas variantes de menor prestígio.", "E": "Afeta exclusivamente as populações rurais, mantendo as periferias urbanas imunes ao processo."}, "correta": "B", "explicacao": "Bagno define o preconceito linguístico como a crença infundada de que existe uma única forma 'correta' ou 'lógica' de falar — geralmente associada à variedade urbana de prestígio — sendo todas as outras tratadas como inferiores. Todas as variedades possuem regras próprias e coerentes (refutando D)."}, {"tema": "Período composto / Oração subordinada substantiva", "enunciado": "\"Os diretores da empresa exigiram que todos os funcionários assinassem o termo de confidencialidade.\"\n\nA estrutura sintática do período composto em destaque revela uma dependência na qual a segunda oração funciona como o termo alvo da ação verbal da primeira. Essa oração classifica-se como subordinada substantiva", "alternativas": {"A": "completiva nominal.", "B": "objetiva direta.", "C": "objetiva indireta.", "D": "subjetiva.", "E": "predicativa."}, "correta": "B", "explicacao": "O verbo \"exigir\" é transitivo direto e a oração \"que todos os funcionários assinassem...\" funciona como objeto direto dele, sem preposição. É, portanto, uma oração subordinada substantiva objetiva direta."}, {"tema": "Figuras de linguagem / Barroco / Antítese", "enunciado": "Leia o poema abaixo, de Gregório de Matos:\n\nNasce o Sol, e não dura mais que um dia,\nDepois da Luz se segue a noite escura,\nEm tristes sombras morre a formosura,\nEm contínuas tristezas a alegria.\n\nO jogo de contrastes marcante nos versos do autor barroco configura a ocorrência de qual figura de linguagem?", "alternativas": {"A": "Paradoxo, pois as ideias contrárias se anulam mutuamente em uma contradição insolúvel.", "B": "Antítese, pois ocorre a aproximação de termos opostos sem que haja incoerência lógica.", "C": "Ironia, já que o poeta diz o contrário do que realmente pensa sobre a brevidade da vida.", "D": "Eufemismo, visto que há uma suavização da realidade da morte através de imagens claras.", "E": "Gradação, porque os elementos textuais progridem em direção a um clímax emocional absoluto."}, "correta": "B", "explicacao": "A antítese aproxima termos opostos (Sol/noite, luz/escura, formosura/sombras, alegria/tristezas) de forma logicamente coerente — não há contradição insolúvel como no paradoxo, apenas contraste. É típica da estética barroca, marcada pelo conflito entre opostos."}, {"tema": "Variação linguística / Registro", "enunciado": "\"E aí, mano, beleza? O bagulho ficou louco ontem na facul, os cara queria trancar a linha de metrô por causa do aumento da passagem, mas a fita deu errado e a polícia colou junto.\"\n\nO texto exemplifica o uso de uma variedade linguística fortemente marcada pelo contexto de circulação. Esse registro é adequado à situação comunicativa apresentada porque", "alternativas": {"A": "demonstra domínio técnico das estruturas sintáticas complexas do português contemporâneo.", "B": "reflete o uso de gírias e marcas de oralidade próprias de um grupo jovem em ambiente informal.", "C": "neutraliza as diferenças regionais por meio de um vocabulário universal e padronizado.", "D": "adota um tom estritamente formal exigido pelas plataformas digitais de interação social.", "E": "elimina a necessidade de coesão textual através do uso excessivo de termos truncados."}, "correta": "B", "explicacao": "O texto usa gírias (\"mano\", \"bagulho\", \"fita\") e marcas de oralidade típicas de um grupo jovem em situação informal de fala entre pares — isso é variação diafásica, adequada ao contexto de uso, não um desvio."}, {"tema": "Período composto / Oração subordinada substantiva", "enunciado": "Substituindo-se o segmento sublinhado na frase \"O paciente tinha a certeza de que receberia alta no dia seguinte\" por um pronome ou mantendo sua função essencial, percebe-se que ele integra o sentido de um substantivo cognato de um verbo. Portanto, a oração classifica-se como", "alternativas": {"A": "subordinada substantiva objetiva indireta.", "B": "subordinada substantiva completiva nominal.", "C": "subordinada adjetiva explicativa restritiva.", "D": "subordinada substantiva predicativa essencial.", "E": "subordinada adverbial causal proporcional."}, "correta": "B", "explicacao": "A oração \"de que receberia alta...\" completa o sentido do substantivo \"certeza\" (que deriva do verbo \"certificar-se/ter certeza\"), regido pela preposição \"de\". Por completar o sentido de um nome (substantivo), é completiva nominal."}, {"tema": "Figuras de linguagem / Prosopopeia", "enunciado": "\"A cidade amanheceu fria e cinzenta. Os prédios altos engoliam as pessoas que saíam correndo das estações de trem, enquanto as ruas estendiam seus braços de asfalto para receber o tráfego pesado do início da jornada de trabalho.\"\n\nNo trecho literário, o autor recorre à atribuição de características humanas a seres inanimados para construir a atmosfera do espaço urbano. Essa estratégia estilística é denominada", "alternativas": {"A": "prosopopeia ou personificação.", "B": "metonímia ou sinédoque.", "C": "hipálage ou sinestesia.", "D": "hipérbole ou exagero.", "E": "alegoria ou parábola."}, "correta": "A", "explicacao": "Atribuir ações e características humanas (\"engoliam\", \"estendiam seus braços\") a seres inanimados (prédios, ruas) é a definição exata de prosopopeia, também chamada de personificação."}, {"tema": "Variação linguística / Registro formal", "enunciado": "Considere o seguinte trecho extraído de um documento jurídico oficial:\n\"Pelo exposto, acolho o parecer do Ministério Público e decreto a prisão preventiva do indiciado, haja vista a presença de indícios veementes de autoria e materialidade delitiva.\"\n\nA escolha do registro linguístico no texto acima justifica-se por razões institucionais. Esse nível de linguagem é caracterizado como", "alternativas": {"A": "coloquial, adequado para aproximar o cidadão comum das decisões do poder judiciário.", "B": "técnico e formal, necessário para garantir a precisão e a solenidade do ato normativo.", "C": "dialetal regional, marcado por expressões típicas do local onde o tribunal está sediado.", "D": "arcaico, visto que preserva estruturas do português quinhentista sem utilidade prática.", "E": "jargão profissional exclusivo, cujo objetivo principal é impedir o acesso público ao teor."}, "correta": "B", "explicacao": "O vocabulário técnico-jurídico (\"haja vista\", \"materialidade delitiva\", \"parecer do Ministério Público\") cumpre função de precisão terminológica e solenidade institucional próprias do registro formal-técnico — não é dialeto regional nem visa exclusão do público."}, {"tema": "Período composto / Oração subordinada substantiva", "enunciado": "\"Meu desejo sempre foi que você encontrasse a felicidade nos pequenos detalhes do cotidiano.\"\n\nNa construção do período composto acima, a oração destacada se liga ao sujeito da oração principal por meio de um verbo de ligação. Desse modo, ela desempenha o papel sintático de", "alternativas": {"A": "sujeito da ação expressa pelo verbo auxiliar.", "B": "aposto especificativo do termo antecedente.", "C": "predicativo do sujeito da oração principal.", "D": "objeto direto implícito do verbo substantivado.", "E": "adjunto adnominal da estrutura perifrástica."}, "correta": "C", "explicacao": "O verbo \"ser\" (\"foi\") é de ligação. A oração \"que você encontrasse...\" atribui uma característica/qualidade ao sujeito \"meu desejo\", funcionando como predicativo do sujeito: \"Meu desejo foi [isso]\"."}, {"tema": "Figuras de linguagem / Sinestesia", "enunciado": "Assinale a alternativa em que ocorre a figura de linguagem conhecida como sinestesia.", "alternativas": {"A": "O som estridente da corneta cortava a madrugada silenciosa do vilarejo.", "B": "Um perfume doce e aveludado preenchia o ambiente escuro da biblioteca.", "C": "O vento soprava forte nas janelas, fazendo os vidros tremerem de medo.", "D": "Li as obras de Machado de Assis durante as minhas férias de inverno.", "E": "O trânsito da avenida principal estava um inferno na tarde de sexta-feira."}, "correta": "B", "explicacao": "Sinestesia mistura sensações de sentidos diferentes na mesma expressão. \"Perfume doce\" mistura olfato com paladar, e \"aveludado\" mistura olfato com tato. As demais alternativas trazem outras figuras: prosopopeia (C), metonímia (D) ou nenhuma figura relevante (A, E)."}, {"tema": "Variação linguística / Diacronia", "enunciado": "\"Muitas palavras utilizadas no português do Brasil atual têm origem em línguas indígenas, como o tupi-guarani. Termos como 'pipoca', 'jacaré', 'abacaxi' e 'tijuca' incorporaram-se ao vocabulário diário de todas as classes sociais, perdendo o caráter puramente nativo.\"\n\nA incorporação de termos de origem indígena ao repertório da língua portuguesa no Brasil é um exemplo de variação linguística do tipo", "alternativas": {"A": "diatópica, pois as palavras são usadas apenas nas regiões densamente florestais.", "B": "diacrônica, demonstrando a evolução histórica e a formação do léxico nacional.", "C": "diastrática, visto que esses termos delimitam o falar das classes de menor renda.", "D": "diafásica, por serem termos restritos a contextos de extrema informalidade.", "E": "idioletal, representando escolhas isoladas de autores da literatura romântica."}, "correta": "B", "explicacao": "A variação diacrônica é aquela que ocorre ao longo do tempo histórico. A incorporação de termos indígenas ao léxico nacional, usados hoje por todas as classes sociais, ilustra essa evolução histórica da língua — e não se restringe a uma região, classe ou situação específica."}, {"tema": "Período composto / Oração apositiva", "enunciado": "No período \"Só nos resta uma alternativa: que aceitemos as condições impostas pelo contrato\", a oração grafada em negrito desempenha uma função explicativa que desenvolve um termo catafórico anterior. Trata-se de uma oração subordinada substantiva", "alternativas": {"A": "subjetiva.", "B": "objetiva direta.", "C": "completiva nominal.", "D": "predicativa.", "E": "apositiva."}, "correta": "E", "explicacao": "A oração explica/desenvolve o termo \"uma alternativa\" (anáfora catafórica, sinalizada pelos dois-pontos), sem função sintática própria — apenas esclarece o termo anterior. Essa é a definição de oração subordinada substantiva apositiva."}, {"tema": "Figuras de linguagem / Paradoxo", "enunciado": "\"A internet democratizou o acesso à informação, mas aprisionou os usuários em bolhas de algoritmos que reforçam preconceitos. É um oceano de dados com um palmo de profundidade reflexiva.\"\n\nA expressão \"um oceano de dados com um palmo de profundidade\" constrói um efeito crítico por meio de uma aparente contradição que, no entanto, revela uma verdade sobre a superficialidade da era digital. Essa figura de pensamento é o", "alternativas": {"A": "eufemismo.", "B": "antítese.", "C": "paradoxo.", "D": "ironia.", "E": "hipérbole."}, "correta": "C", "explicacao": "O paradoxo une ideias aparentemente contraditórias (\"oceano\" = imensidão e \"palmo\" = pequenez) que, juntas, revelam uma verdade mais profunda sobre o tema — diferente da antítese, que apenas justapõe opostos sem necessariamente gerar essa síntese reveladora."}, {"tema": "Variação linguística / Diafasia", "enunciado": "A variação diafásica refere-se à capacidade que um mesmo falante possui de adaptar a sua linguagem de acordo com a situação em que se encontra. Assinale o cenário em que ocorre uma inadequação flagrante desse tipo de variação.", "alternativas": {"A": "Um médico utiliza termos científicos simplificados ao explicar um diagnóstico para um paciente leigo.", "B": "Um advogado usa expressões em latim e termos técnicos durante a sustentação oral em um tribunal.", "C": "Um candidato a emprego utiliza gírias pesadas e abreviações da internet durante a entrevista formal.", "D": "Um professor de linguística adota um tom informal ao conversar com seus amigos em um churrasco.", "E": "Um jornalista de rádio utiliza uma linguagem clara, acessível e neutra em um boletim informativo."}, "correta": "C", "explicacao": "A inadequação ocorre quando o registro escolhido não combina com o contexto. Usar gírias pesadas e abreviações de internet numa entrevista formal de emprego é incompatível com a situação, configurando um desvio de adequação diafásica. As demais alternativas mostram adaptações coerentes ao contexto."}, {"tema": "Período composto / Oração subjetiva com voz passiva", "enunciado": "\"Constatou-se que o nível de poluentes na atmosfera da metrópole atingiu patamares críticos durante o inverno.\"\n\nA análise da estrutura sintática do texto revela que a oração principal possui um verbo transitivo direto na terceira pessoa do singular acompanhado da partícula apassivadora \"se\". Nesse contexto, a oração subordinada subsequente classifica-se como", "alternativas": {"A": "subjetiva, funcionando como o sujeito paciente da forma verbal \"constatou-se\".", "B": "objetiva direta, atuando como o objeto do verbo de ação da oração antecedente.", "C": "completiva nominal, integrando o sentido do substantivo abstrato derivado do verbo.", "D": "predicativa, atribuindo uma qualidade ao estado de coisas indicado no início do período.", "E": "agente da passiva, determinando quem realizou a ação de constatar os poluentes."}, "correta": "A", "explicacao": "Com a partícula apassivadora \"se\", o verbo \"constatar\" fica na voz passiva sintética. A oração \"que o nível de poluentes... atingiu patamares críticos\" passa a exercer a função de sujeito da forma verbal \"constatou-se\", sendo, portanto, subjetiva."}, {"tema": "Figuras de linguagem / Metonímia", "enunciado": "Assinale a alternativa que apresenta, respectivamente, as figuras de linguagem presentes nos enunciados I e II abaixo.\nI. O estádio inteiro aplaudiu de pé o lance genial do jovem atacante.\nII. Por favor, insistia o homem, compre-me um maço de cigarros, pois preciso acalmar meus nervos.", "alternativas": {"A": "I. Metáfora / II. Catacrese.", "B": "I. Metonímia / II. Sinédoque.", "C": "I. Metonímia / II. Metáfora.", "D": "I. Personificação / II. Antítese.", "E": "I. Hipérbole / II. Pleonasmo."}, "correta": "B", "explicacao": "Em I, \"o estádio\" (lugar) substitui \"as pessoas que estavam no estádio\" — é metonímia (continente pelo conteúdo). Em II, \"um maço de cigarros\" representa o conteúdo (cigarros) pela embalagem, caso clássico de sinédoque (parte/recipiente pelo todo)."}, {"tema": "Preconceito linguístico / Desmistificação", "enunciado": "\"O linguajar caipira, muitas vezes ridicularizado nos centros urbanos, preserva estruturas do português arcaico que se perderam no padrão literário moderno. A troca do 'l' pelo 'r' em palavras como 'craro' e 'framengo' possui paralelo direto com a evolução histórica da língua ibérica.\"\n\nO fragmento busca desmistificar o preconceito linguístico ao demonstrar que as variantes populares", "alternativas": {"A": "carecem de qualquer lógica interna ou estruturação gramatical sistemática.", "B": "resultam de erros individuais causados pela preguiça de articulação fonética.", "C": "possuem uma raiz histórica legítima e obedecem a regras fonológicas claras.", "D": "devem ser erradicadas por meio de políticas públicas severas de alfabetização.", "E": "restringem-se ao vocabulário de grupos marginais sem impacto na cultura nacional."}, "correta": "C", "explicacao": "O texto mostra que o rotacismo (troca de 'l' por 'r') tem origem histórica e segue um padrão fonológico regular — não é 'erro' aleatório nem preguiça, mas um fenômeno linguístico sistemático e legítimo, com raízes na evolução do português."}, {"tema": "Período composto / Oração apositiva", "enunciado": "Considere o período: Digo-te uma coisa: que a paciência é a virtude dos fortes.\n\nA oração \"que a paciência é a virtude dos fortes\"", "alternativas": {"A": "funciona como o sujeito oculto da oração que inicia a estrutura do período.", "B": "exerce a função de objeto direto preposicionado do verbo transitivo direto \"dizer\".", "C": "explica ou especifica um termo de valor substantivo \"uma coisa\" explicitado anteriormente.", "D": "altera o sentido do adjetivo modificador que qualifica o núcleo do sujeito simples.", "E": "introduz uma circunstância de modo ligada à forma como a fala é proferida pelo emissor."}, "correta": "C", "explicacao": "Os dois-pontos sinalizam que a oração subsequente desenvolve/explica o termo catafórico \"uma coisa\". Sem função sintática própria na oração principal, apenas especifica o conteúdo anunciado — caso típico de oração subordinada substantiva apositiva."}, {"tema": "Sociolinguística / Preconceito linguístico", "enunciado": "Um professor corrige severamente um aluno que disse \"os livro\" em sala de aula, afirmando que essa forma \"não existe\" na língua portuguesa. Sob a perspectiva da sociolinguística variacionista, essa atitude do professor", "alternativas": {"A": "está correta, pois apenas a concordância da norma-padrão constitui português legítimo.", "B": "ignora que a ausência de marca de plural no segundo elemento é uma regra sistemática de variedades populares do português.", "C": "é necessária para evitar que o aluno desenvolva vícios de linguagem permanentes.", "D": "demonstra domínio da gramática normativa, sendo um exemplo de boa prática pedagógica.", "E": "comprova que o aluno tem dificuldades cognitivas de aprendizagem da língua materna."}, "correta": "B", "explicacao": "A concordância de número marcada apenas no primeiro elemento do sintagma (\"os livro\") é uma regra sistemática e previsível em variedades populares do português brasileiro, descrita por sociolinguistas como regra de concordância variável — não é ausência de regra, e tratá-la como inexistente ignora a estrutura interna dessa variedade."}, {"tema": "Sociolinguística / Norma-padrão vs norma culta", "enunciado": "A sociolinguística distingue \"norma-padrão\" de \"norma culta\". Assinale a alternativa que melhor expressa essa distinção.", "alternativas": {"A": "Norma-padrão é a fala da elite intelectual; norma culta é a língua usada por todos os brasileiros sem distinção.", "B": "Norma-padrão é um conjunto idealizado de regras prescritivas; norma culta é o uso real da língua por falantes urbanos escolarizados, que nem sempre coincide com a norma-padrão.", "C": "Norma-padrão e norma culta são sinônimos perfeitos, sem qualquer diferença conceitual.", "D": "Norma culta refere-se apenas à escrita; norma-padrão refere-se apenas à fala informal.", "E": "Norma-padrão é exclusiva dos dicionários; norma culta é exclusiva da gramática escolar."}, "correta": "B", "explicacao": "A norma-padrão é uma construção idealizada e prescritiva (a 'gramática normativa'), enquanto a norma culta é o uso efetivo da língua por falantes urbanos com escolaridade alta — e pesquisas mostram que o falante culto frequentemente se afasta de regras da norma-padrão (ex.: próclise/ênclise, colocação pronominal)."}, {"tema": "Variação linguística / Diatópica", "enunciado": "No Brasil, a mesma fruta é chamada de \"mandioca\" em algumas regiões e de \"aipim\" ou \"macaxeira\" em outras. Esse fenômeno linguístico é classificado como variação", "alternativas": {"A": "diastrática, pois reflete diferenças entre classes sociais distintas.", "B": "diafásica, pois depende do grau de formalidade da situação comunicativa.", "C": "diatópica, pois reflete diferenças geográficas/regionais no uso do vocabulário.", "D": "diacrônica, pois mostra a evolução do termo ao longo dos séculos.", "E": "idiossincrática, pois é uma escolha exclusiva e isolada de cada falante."}, "correta": "C", "explicacao": "Variação diatópica (do grego \"topos\", lugar) é a variação geográfica/regional. \"Aipim\", \"macaxeira\" e \"mandioca\" são exemplos clássicos desse tipo de variação no português brasileiro, dependendo da região do país."}, {"tema": "Variação linguística / Diastrática", "enunciado": "A diferença de vocabulário e de construções sintáticas entre um grupo de advogados conversando sobre um processo e um grupo de pedreiros conversando sobre uma obra, ambos na mesma cidade, exemplifica principalmente a variação linguística do tipo", "alternativas": {"A": "diatópica, decorrente da distância geográfica entre os dois grupos.", "B": "diastrática, relacionada a diferenças de grupo social, escolaridade e profissão.", "C": "diacrônica, relacionada à passagem do tempo histórico entre os falantes.", "D": "diamésica, relacionada exclusivamente ao canal (oral ou escrito) usado na comunicação.", "E": "geográfica externa, relacionada à variação entre diferentes países lusófonos."}, "correta": "B", "explicacao": "Variação diastrática é aquela ligada a diferenças sociais — classe, escolaridade, profissão, grupo etário. Advogados e pedreiros, mesmo morando na mesma cidade, usam vocabulário técnico e registros distintos por pertencerem a grupos sociais e profissionais diferentes."}, {"tema": "Variação linguística / Diafásica", "enunciado": "Uma mesma pessoa fala de modo descontraído com os amigos no fim de semana e de modo mais cuidadoso numa reunião de trabalho. Essa capacidade de adequar o registro à situação comunicativa é chamada de variação", "alternativas": {"A": "diatópica.", "B": "diastrática.", "C": "diafásica.", "D": "diacrônica.", "E": "dialetal."}, "correta": "C", "explicacao": "A variação diafásica (ou estilística) ocorre quando o mesmo falante adapta seu registro conforme o grau de formalidade exigido pela situação comunicativa — sem mudar de região, classe social ou época."}, {"tema": "Sociolinguística / Variação e norma", "enunciado": "Segundo a perspectiva sociolinguística moderna, ensinar a norma-padrão na escola deve ter como objetivo principal", "alternativas": {"A": "substituir completamente a variedade linguística de origem do aluno por uma única forma considerada correta.", "B": "ampliar o repertório linguístico do aluno, capacitando-o a usar diferentes variedades conforme o contexto, sem desqualificar sua fala de origem.", "C": "convencer o aluno de que sua variedade de origem é inferior e deve ser abandonada.", "D": "restringir o ensino da língua apenas aos falantes que já dominam a norma culta.", "E": "padronizar definitivamente toda a comunicação oral do país em uma única variedade."}, "correta": "B", "explicacao": "A visão sociolinguística contemporânea defende o pluralismo linguístico: ensinar a norma-padrão amplia as possibilidades de uso do aluno (competência comunicativa em diferentes contextos), sem estigmatizar ou substituir a variedade que ele já domina."}, {"tema": "Figuras de linguagem / Hipérbole", "enunciado": "\"Chorei rios de lágrimas quando soube que não passaria de fase no jogo.\"\n\nA figura de linguagem presente nesse enunciado é a", "alternativas": {"A": "metáfora, pois compara o choro a um fenômeno natural sem exagero.", "B": "hipérbole, pois exagera intencionalmente a intensidade do choro para criar efeito expressivo.", "C": "antítese, pois contrapõe duas ideias opostas sobre o mesmo evento.", "D": "eufemismo, pois suaviza a expressão de uma emoção negativa.", "E": "catacrese, pois emprega um termo técnico fora do seu campo de origem."}, "correta": "B", "explicacao": "\"Rios de lágrimas\" é um exagero proposital para enfatizar a intensidade emocional — definição central da hipérbole. Não há suavização (eufemismo) nem contraste de opostos (antítese)."}, {"tema": "Figuras de linguagem / Eufemismo", "enunciado": "Em vez de dizer \"o paciente morreu\", o médico informou à família que \"o paciente partiu para um lugar melhor\". Essa substituição configura a figura de linguagem chamada", "alternativas": {"A": "hipérbole, pois exagera a gravidade do fato ocorrido.", "B": "ironia, pois expressa o contrário do que realmente aconteceu.", "C": "eufemismo, pois suaviza uma realidade dolorosa por meio de uma expressão mais branda.", "D": "prosopopeia, pois atribui características humanas a um conceito abstrato.", "E": "paradoxo, pois reúne ideias contraditórias em uma mesma afirmação."}, "correta": "C", "explicacao": "O eufemismo substitui uma expressão crua ou dolorosa (\"morreu\") por outra mais suave e indireta (\"partiu para um lugar melhor\"), atenuando o impacto emocional da informação."}, {"tema": "Figuras de linguagem / Ironia", "enunciado": "Um aluno entrega uma prova completamente em branco e o professor comenta: \"Que dedicação exemplar!\"\n\nO comentário do professor exemplifica a figura de linguagem denominada", "alternativas": {"A": "ironia, pois diz o contrário do que pensa para produzir um efeito crítico ou irônico.", "B": "metáfora, pois compara implicitamente o aluno a outro elemento.", "C": "eufemismo, pois suaviza a crítica ao desempenho do aluno.", "D": "hipérbole, pois exagera de forma literal o elogio ao aluno.", "E": "prosopopeia, pois humaniza um conceito abstrato como \"dedicação\"."}, "correta": "A", "explicacao": "A ironia consiste em dizer o contrário do que se pensa, geralmente para criticar ou ironizar uma situação. Ao chamar de \"dedicação exemplar\" uma prova em branco, o professor expressa exatamente o oposto do que afirma."}, {"tema": "Figuras de linguagem / Antítese vs Paradoxo", "enunciado": "\"Era um amor que doía e curava ao mesmo tempo: quanto mais perto, mais distante eu me sentia.\"\n\nA construção \"quanto mais perto, mais distante\" caracteriza-se principalmente como", "alternativas": {"A": "metonímia, pois substitui um elemento por outro relacionado contiguamente.", "B": "paradoxo, pois reúne ideias contraditórias que, juntas, expressam uma verdade emocional complexa.", "C": "sinédoque, pois usa a parte para representar o todo da relação.", "D": "catacrese, pois emprega um termo fora de seu sentido técnico original.", "E": "gradação, pois apresenta uma progressão crescente de intensidade emocional."}, "correta": "B", "explicacao": "A aparente contradição lógica (estar perto e, ao mesmo tempo, distante) não é apenas contraste — ela revela uma verdade emocional mais profunda sobre a complexidade do sentimento, o que caracteriza o paradoxo, e não a antítese simples."}, {"tema": "Figuras de linguagem / Catacrese", "enunciado": "A expressão \"o braço da cadeira está quebrado\" emprega a palavra \"braço\" fora de seu sentido original (parte do corpo humano), por falta de termo específico para essa parte do mobiliário. Essa figura de linguagem é a", "alternativas": {"A": "metáfora, pois cria uma comparação implícita nova e original.", "B": "catacrese, pois usa um termo já desgastado pelo uso, sem efeito poético consciente.", "C": "metonímia, pois substitui a causa pelo efeito.", "D": "sinestesia, pois mistura sentidos de diferentes órgãos do corpo.", "E": "ironia, pois expressa o contrário do que a frase literalmente diz."}, "correta": "B", "explicacao": "A catacrese é um tipo de metáfora já \"gasta\" pelo uso cotidiano, empregada por falta de termo específico (\"braço\" da cadeira, \"pé\" da mesa, \"dente\" de alho) — não há mais consciência poética nesse uso, apenas necessidade lexical."}, {"tema": "Figuras de linguagem / Sinédoque", "enunciado": "\"O Brasil conquistou a medalha de ouro no atletismo.\"\n\nNessa frase, o termo \"Brasil\" substitui \"o atleta brasileiro\", configurando a figura de linguagem chamada", "alternativas": {"A": "sinédoque, pois usa o todo (país) para representar a parte (o atleta que o representa).", "B": "metáfora, pois há uma comparação implícita entre dois elementos distintos.", "C": "prosopopeia, pois atribui características humanas a um conceito abstrato.", "D": "antítese, pois contrapõe duas ideias de sentido opost.", "E": "hipérbole, pois exagera o feito desportivo do atleta."}, "correta": "A", "explicacao": "A sinédoque consiste em usar o todo pela parte (ou vice-versa). Aqui, \"Brasil\" (o todo, a nação) representa \"o atleta brasileiro\" (a parte que disputou e venceu a prova)."}, {"tema": "Figuras de linguagem / Metonímia", "enunciado": "\"Lemos Machado de Assis na escola\" e \"Tomamos uns copos no bar depois do trabalho\" exemplificam, respectivamente, os seguintes tipos de metonímia:", "alternativas": {"A": "autor pela obra; recipiente pelo conteúdo.", "B": "efeito pela causa; instrumento pelo agente.", "C": "parte pelo todo; todo pela parte.", "D": "abstrato pelo concreto; concreto pelo abstrato.", "E": "símbolo pelo simbolizado; matéria pelo objeto."}, "correta": "A", "explicacao": "Em \"lemos Machado de Assis\", o nome do autor substitui sua obra (autor pela obra). Em \"tomamos uns copos\", o recipiente (copo) substitui o conteúdo (a bebida) — ambos são subtipos clássicos de metonímia."}, {"tema": "Figuras de linguagem / Pleonasmo", "enunciado": "\"Subi para cima da escada e desci para baixo correndo, pois ouvi um grito alto que retumbou pela casa.\"\n\nAs expressões \"subi para cima\" e \"desci para baixo\" exemplificam a figura de linguagem conhecida como", "alternativas": {"A": "pleonasmo, pois repetem informações já contidas implicitamente no verbo, reforçando a ideia.", "B": "elipse, pois omitem um termo facilmente identificável pelo contexto.", "C": "zeugma, pois omitem um termo já mencionado anteriormente no período.", "D": "anacoluto, pois rompem a estrutura sintática esperada do período.", "E": "polissíndeto, pois repetem conectivos para dar ritmo à frase."}, "correta": "A", "explicacao": "O pleonasmo é a repetição redundante de uma ideia já implícita em outro termo da frase: \"subir\" já implica \"para cima\" e \"descer\" já implica \"para baixo\". Usado intencionalmente, pode reforçar o sentido com efeito estilístico (pleonasmo estilístico)."}, {"tema": "Figuras de linguagem / Gradação", "enunciado": "\"Ele duvidou, hesitou, recusou, e por fim, desistiu de tudo o que havia construído.\"\n\nA sequência de verbos nessa frase, organizada em ordem crescente de intensidade, caracteriza a figura de linguagem denominada", "alternativas": {"A": "antítese, pois contrapõe ideias de sentidos opostos.", "B": "gradação ou clímax, pois apresenta uma progressão de intensidade até um ponto culminante.", "C": "metonímia, pois substitui um termo por outro relacionado contiguamente.", "D": "ironia, pois expressa o oposto do que o autor realmente pretende dizer.", "E": "eufemismo, pois suaviza a gravidade da desistência do personagem."}, "correta": "B", "explicacao": "A gradação (ou clímax) organiza ideias em sequência crescente (ou decrescente) de intensidade. Aqui, os verbos \"duvidou\", \"hesitou\", \"recusou\" e \"desistiu\" formam uma progressão até o ponto culminante da ação."}, {"tema": "Período composto / Subordinada substantiva subjetiva", "enunciado": "\"Convém que todos os participantes leiam o regulamento antes da competição.\"\n\nA oração \"que todos os participantes leiam o regulamento antes da competição\" classifica-se como subordinada substantiva", "alternativas": {"A": "objetiva direta, pois complementa o sentido do verbo transitivo direto \"convir\".", "B": "subjetiva, pois funciona como sujeito do verbo impessoal \"convém\".", "C": "predicativa, pois atribui uma característica ao sujeito da oração principal.", "D": "completiva nominal, pois completa o sentido de um substantivo abstrato.", "E": "apositiva, pois explica um termo catafórico mencionado anteriormente."}, "correta": "B", "explicacao": "Verbos como \"convir\", \"importar\", \"cumprir\" usados de forma impessoal (sem sujeito próprio) recebem como sujeito a oração subordinada subsequente. \"Convém [que todos leiam o regulamento]\" — a oração é o sujeito do verbo \"convém\"."}, {"tema": "Período composto / Subordinada substantiva objetiva direta", "enunciado": "\"Os pesquisadores afirmaram que a nova vacina apresentou resultados promissores nos testes clínicos.\"\n\nA oração destacada classifica-se como subordinada substantiva", "alternativas": {"A": "subjetiva, pois é o sujeito do verbo \"afirmar\".", "B": "objetiva direta, pois completa o sentido do verbo transitivo direto \"afirmar\", sem preposição.", "C": "objetiva indireta, pois completa o sentido do verbo por meio de preposição.", "D": "predicativa, pois atribui uma característica ao sujeito da oração principal.", "E": "completiva nominal, pois completa o sentido de um substantivo."}, "correta": "B", "explicacao": "\"Afirmar\" é verbo transitivo direto, e a oração \"que a nova vacina apresentou resultados...\" funciona como seu objeto direto, sem mediação de preposição — classificando-se como objetiva direta."}, {"tema": "Período composto / Subordinada substantiva objetiva indireta", "enunciado": "\"O time confiava em que a vitória viria na prorrogação do jogo.\"\n\nA oração \"em que a vitória viria na prorrogação do jogo\" classifica-se como subordinada substantiva", "alternativas": {"A": "objetiva direta, pois o verbo \"confiar\" é transitivo direto.", "B": "objetiva indireta, pois completa o sentido do verbo transitivo indireto \"confiar\", regido pela preposição \"em\".", "C": "completiva nominal, pois completa o sentido de um adjetivo abstrato.", "D": "subjetiva, pois funciona como sujeito da oração principal.", "E": "predicativa, pois atribui uma qualidade ao sujeito \"o time\"."}, "correta": "B", "explicacao": "\"Confiar\" é verbo transitivo indireto, regendo a preposição \"em\". A oração subordinada que o completa, introduzida por essa preposição, é objetiva indireta."}, {"tema": "Período composto / Subordinada substantiva completiva nominal", "enunciado": "\"Os moradores tinham necessidade de que a prefeitura resolvesse o problema do abastecimento de água.\"\n\nA oração destacada classifica-se como subordinada substantiva", "alternativas": {"A": "completiva nominal, pois completa o sentido do substantivo abstrato \"necessidade\", regido por preposição.", "B": "objetiva direta, pois completa o sentido de um verbo transitivo direto.", "C": "objetiva indireta, pois completa o sentido de um verbo transitivo indireto.", "D": "subjetiva, pois é sujeito do verbo \"ter\".", "E": "apositiva, pois apenas explica um termo catafórico."}, "correta": "A", "explicacao": "A oração completa o sentido do substantivo abstrato \"necessidade\" (não de um verbo), regida pela preposição \"de\" — característica definidora da oração subordinada substantiva completiva nominal."}, {"tema": "Período composto / Subordinada substantiva predicativa", "enunciado": "\"O importante é que todos os alunos compareçam à reunião de pais.\"\n\nA oração destacada, em relação ao termo \"o importante\", exerce a função de", "alternativas": {"A": "sujeito, pois antecede o verbo de ligação \"é\".", "B": "predicativo do sujeito \"o importante\", pois o verbo de ligação \"é\" liga as duas orações atribuindo uma característica.", "C": "objeto direto, pois completa o sentido de um verbo transitivo direto.", "D": "complemento nominal, pois completa o sentido de um adjetivo substantivado.", "E": "aposto explicativo, pois apenas esclarece o termo anterior sem função sintática própria."}, "correta": "B", "explicacao": "O verbo \"ser\" liga o sujeito \"o importante\" à oração subsequente, que atribui a ele uma característica/conteúdo. Essa é a estrutura típica da oração subordinada substantiva predicativa."}, {"tema": "Período composto / Identificação geral", "enunciado": "Em qual das alternativas a oração sublinhada é uma subordinada substantiva subjetiva?", "alternativas": {"A": "É possível que chova bastante neste fim de semana.", "B": "O professor explicou que a prova seria adiada.", "C": "Tenho certeza de que ele vai chegar atrasado.", "D": "O resultado foi que ninguém passou de fase.", "E": "Insisto em que você revise o texto antes de entregar."}, "correta": "A", "explicacao": "\"É possível [que chova bastante]\": a oração funciona como sujeito do verbo de ligação impessoal \"é possível\". As demais são, respectivamente: objetiva direta (B), completiva nominal (C), predicativa (D) e objetiva indireta (E)."}, {"tema": "Período composto / Identificação geral", "enunciado": "Em qual das alternativas a oração sublinhada é uma subordinada substantiva objetiva direta?", "alternativas": {"A": "É provável que o show seja cancelado por causa da chuva.", "B": "A diretora informou que as aulas seriam suspensas na sexta-feira.", "C": "Estou certo de que a resposta está correta.", "D": "A condição é que todos paguem a mensalidade em dia.", "E": "O médico insistiu em que o paciente fizesse o exame."}, "correta": "B", "explicacao": "\"Informar\" é transitivo direto, e a oração \"que as aulas seriam suspensas...\" é seu objeto direto, sem preposição — caracterizando a objetiva direta. As demais alternativas são subjetiva (A), completiva nominal (C), predicativa (D) e objetiva indireta (E)."}, {"tema": "Figuras de linguagem / Personificação avançada", "enunciado": "\"A solidão bateu à porta do velho casarão e ali se instalou, sem pedir licença, fazendo morada nos cantos empoeirados.\"\n\nA figura de linguagem predominante nesse trecho é a", "alternativas": {"A": "prosopopeia, pois atribui ações e comportamentos humanos a um conceito abstrato (a solidão).", "B": "metáfora pura, pois não há nenhuma atribuição de traços humanos no trecho.", "C": "antítese, pois contrapõe a ideia de solidão à ideia de companhia.", "D": "hipérbole, pois exagera a duração da solidão no casarão.", "E": "ironia, pois sugere o contrário do que de fato ocorre na narrativa."}, "correta": "A", "explicacao": "Atribuir à \"solidão\" (conceito abstrato) ações tipicamente humanas — bater à porta, instalar-se, pedir licença, fazer morada — é a definição precisa de prosopopeia/personificação."}, {"tema": "Sociolinguística / Conceito de língua", "enunciado": "Sob a perspectiva da linguística moderna, a afirmação de que \"o português falado no interior é mais feio ou mais errado que o português falado nas capitais\"", "alternativas": {"A": "é tecnicamente correta, pois a fala urbana segue rigorosamente a norma-padrão.", "B": "reflete um juízo de valor social e não um critério linguístico objetivo, já que toda variedade tem sua própria gramática interna coerente.", "C": "está fundamentada em estudos fonéticos que comprovam a superioridade estrutural do português urbano.", "D": "é uma constatação neutra sobre as diferenças fonológicas regionais, sem qualquer carga ideológica.", "E": "se aplica apenas a comunidades rurais isoladas, sem qualquer relação com áreas urbanas periféricas."}, "correta": "B", "explicacao": "A linguística não reconhece hierarquia de \"correção\" entre variedades linguísticas — toda variedade (rural, urbana, popular, culta) tem gramática própria e coerente. Julgamentos como \"feio\" ou \"errado\" são juízos sociais, não critérios técnicos linguísticos."}, {"tema": "Sociolinguística / Mudança linguística", "enunciado": "O fato de o pronome \"tu\" ser conjugado com a terceira pessoa do singular (\"tu vai\", em vez de \"tu vais\") em diversas regiões do Brasil é um fenômeno que a sociolinguística trata como", "alternativas": {"A": "um erro isolado, restrito a falantes com baixo nível de escolaridade.", "B": "uma mudança linguística em curso, amplamente documentada e sistemática em variedades regionais do português brasileiro.", "C": "uma falha de aprendizagem que compromete a comunicação entre os falantes.", "D": "um fenômeno exclusivo da escrita informal em redes sociais.", "E": "uma característica presente apenas na língua portuguesa de Portugal."}, "correta": "B", "explicacao": "A combinação \"tu\" + verbo na 3ª pessoa é um fenômeno amplamente documentado e sistemático em diversas regiões do Brasil (como o Sul e o Norte), tratado pela sociolinguística como mudança linguística em curso, não como erro ou falha de aprendizagem."}, {"tema": "Variação linguística / Diamésica", "enunciado": "A diferença entre escrever um e-mail formal de trabalho e enviar uma mensagem rápida de texto a um amigo usando abreviações como \"vc\" e \"blz\" ilustra principalmente a variação linguística do tipo", "alternativas": {"A": "diatópica, relacionada ao espaço geográfico dos falantes.", "B": "diastrática, relacionada à classe social dos interlocutores.", "C": "diamésica, relacionada ao meio ou canal de comunicação utilizado (escrita formal vs. digital/informal).", "D": "diacrônica, relacionada à evolução histórica da língua.", "E": "dialetal, relacionada a um dialeto regional específico."}, "correta": "C", "explicacao": "A variação diamésica está relacionada ao meio ou canal de comunicação (fala, escrita formal, escrita digital). O contraste entre um e-mail formal e uma mensagem de texto informal exemplifica esse tipo de variação ligada ao suporte/meio."}, {"tema": "Figuras de linguagem / Comparação vs Metáfora", "enunciado": "Considere as duas frases:\nI. \"Seus olhos são como duas estrelas no céu da noite.\"\nII. \"Seus olhos são duas estrelas no céu da noite.\"\n\nA diferença fundamental entre as duas figuras de linguagem empregadas é que", "alternativas": {"A": "I é metáfora e II é comparação, pois a metáfora sempre usa conectivo comparativo.", "B": "I é comparação (símile), pois usa o conectivo \"como\"; II é metáfora, pois funde os termos sem conectivo, criando identidade implícita.", "C": "ambas são metáforas, pois mantêm exatamente o mesmo grau de implicitude.", "D": "ambas são comparações, pois mantêm a mesma estrutura sintática.", "E": "I é hipérbole e II é antítese, dada a intensidade das imagens utilizadas."}, "correta": "B", "explicacao": "A comparação (ou símile) usa conectivo explícito (\"como\", \"tal qual\") para aproximar dois termos, mantendo-os distintos. A metáfora funde os dois termos numa relação de identidade implícita, sem conectivo — por isso \"é\" e não \"é como\"."}, {"tema": "Figuras de linguagem / Análise de poema", "enunciado": "\"Tudo é mar, tudo é vento, e eu, naufrágio, sigo à deriva sem rumo, sem porto, sem amor.\"\n\nA repetição da estrutura \"tudo é\" e a sequência \"sem rumo, sem porto, sem amor\" caracterizam, respectivamente, as figuras de linguagem", "alternativas": {"A": "anáfora e enumeração, pois há repetição de termo no início dos versos seguida de uma sequência de elementos.", "B": "metonímia e antítese, pois há substituição lexical seguida de contraste de ideias.", "C": "hipérbole e eufemismo, pois há exagero seguido de suavização.", "D": "catacrese e sinestesia, pois há uso de termo técnico seguido de mistura sensorial.", "E": "ironia e paradoxo, pois há contradição irônica seguida de síntese contraditória."}, "correta": "A", "explicacao": "A repetição de \"tudo é\" no início dos versos é anáfora (figura de repetição). A sequência \"sem rumo, sem porto, sem amor\" constitui uma enumeração de elementos relacionados, reforçando a ideia de perda e desorientação."}, {"tema": "Sociolinguística / Conceito de erro", "enunciado": "De acordo com a linguística contemporânea, o conceito de \"erro de português\" deve ser entendido como", "alternativas": {"A": "qualquer desvio em relação à norma-padrão, independentemente do contexto comunicativo.", "B": "um conceito relativo, que depende do contexto, do gênero textual e da variedade linguística em uso — uma forma pode ser adequada em um contexto e inadequada em outro.", "C": "um fenômeno raro, restrito a falantes sem nenhuma escolaridade formal.", "D": "uma falha cognitiva permanente que compromete a capacidade comunicativa do falante.", "E": "algo que só existe na modalidade escrita da língua, nunca na fala."}, "correta": "B", "explicacao": "A linguística moderna trata adequação linguística como relativa ao contexto: uma forma pode ser perfeitamente adequada numa conversa informal e inadequada num texto técnico formal, e vice-versa. O conceito rígido e absoluto de \"erro\" não corresponde à forma como a língua realmente funciona."}, {"tema": "Figuras de linguagem / Apóstrofe", "enunciado": "\"Ó pátria amada, idolatrada, salve, salve!\"\n\nA figura de linguagem presente nesse verso, em que há uma interpelação direta e enfática a um ser (neste caso, abstrato/personificado), é denominada", "alternativas": {"A": "apóstrofe, pois há uma invocação direta e vocativa a um ser, mesmo que abstrato ou ausente.", "B": "elipse, pois há omissão de um termo facilmente subentendido.", "C": "zeugma, pois há omissão de um termo já mencionado anteriormente.", "D": "anástrofe, pois há inversão da ordem natural dos termos da oração.", "E": "polissíndeto, pois há repetição de conectivos para dar ritmo ao verso."}, "correta": "A", "explicacao": "A apóstrofe é a interpelação direta e enfática (geralmente com vocativo) a um ser, presente ou ausente, animado ou inanimado, real ou abstrato. Invocar a \"pátria\" diretamente (\"Ó pátria amada\") é o exemplo clássico dessa figura."}, {"tema": "Período composto / Diferenciação substantiva vs adjetiva", "enunciado": "Assinale a alternativa em que a oração sublinhada NÃO é uma oração subordinada substantiva, mas sim adjetiva.", "alternativas": {"A": "É necessário que todos cheguem antes das oito horas.", "B": "O livro que está na mesa pertence à biblioteca municipal.", "C": "Espero que você tenha um bom dia.", "D": "Minha esperança é que tudo se resolva bem.", "E": "Tenho certeza de que ele virá à festa."}, "correta": "B", "explicacao": "Em \"o livro que está na mesa\", a oração \"que está na mesa\" tem valor adjetivo: caracteriza/restringe o substantivo \"livro\", como faria um adjetivo. As demais alternativas trazem orações substantivas (subjetiva, objetiva direta, predicativa e completiva nominal, respectivamente)."}, {"tema": "Sociolinguística / Atitude do professor", "enunciado": "Diante de um aluno que escreve \"nós pega o trem\" em uma redação escolar, a abordagem pedagógica mais alinhada à sociolinguística educacional contemporânea seria", "alternativas": {"A": "marcar a frase como \"errada\" sem mais explicações, reduzindo a nota do aluno.", "B": "reconhecer que essa construção é regular em sua variedade de origem e, a partir disso, ensinar a forma da norma-padrão como uma alternativa a ser usada em contextos formais.", "C": "ignorar completamente a questão, pois variedades linguísticas não devem ser discutidas em sala de aula.", "D": "afirmar ao aluno que sua forma de falar em casa está errada e deve ser corrigida pelos familiares.", "E": "aplicar uma advertência disciplinar, já que o uso da norma-padrão é obrigatório em qualquer texto escolar."}, "correta": "B", "explicacao": "A abordagem sociolinguística não nega o ensino da norma-padrão, mas o faz sem desqualificar a variedade de origem do aluno — apresentando-a como uma ferramenta adicional para contextos formais, e não como correção de um \"erro\" da fala do aluno."}, {"tema": "Figuras de linguagem / Identificação múltipla", "enunciado": "\"As ondas devoravam a praia com fúria, enquanto o céu, cúmplice da tempestade, escondia todas as estrelas atrás de um manto cinzento.\"\n\nNesse trecho, ocorrem, predominantemente, as figuras de linguagem", "alternativas": {"A": "metonímia e sinédoque.", "B": "prosopopeia (em \"devoravam\" e \"cúmplice\") e metáfora (em \"manto cinzento\" referindo-se às nuvens).", "C": "ironia e eufemismo.", "D": "antítese e paradoxo.", "E": "catacrese e sinestesia."}, "correta": "B", "explicacao": "\"Devoravam\" e \"cúmplice\" atribuem ação e intenção humanas às ondas e ao céu (prosopopeia). \"Manto cinzento\" cria uma identidade implícita entre as nuvens e um manto (metáfora), sem conectivo comparativo."}, {"tema": "Variação linguística / Preconceito e mídia", "enunciado": "Programas de humor que ridicularizam sistematicamente o modo de falar de pessoas de regiões rurais ou periféricas, atribuindo-lhes características de \"ignorância\", contribuem para", "alternativas": {"A": "a valorização cultural dessas variedades linguísticas perante a sociedade.", "B": "o reforço do preconceito linguístico, associando uma variedade legítima da língua a estereótipos negativos sobre seus falantes.", "C": "a correção gramatical automática dos falantes dessas regiões.", "D": "a eliminação natural e benéfica dessas variedades ao longo do tempo.", "E": "um processo neutro de documentação linguística sem qualquer efeito social."}, "correta": "B", "explicacao": "Ridicularizar uma variedade linguística associando-a a estereótipos negativos (ignorância, atraso) é uma forma clara de preconceito linguístico, que reforça hierarquias sociais ao tratar diferenças linguísticas como deficiências."}, {"tema": "Período composto / Subordinada substantiva com infinitivo", "enunciado": "\"É proibido fumar dentro do estabelecimento.\"\n\nNessa frase, o segmento \"fumar dentro do estabelecimento\" exerce a função de", "alternativas": {"A": "objeto direto do verbo \"proibir\", já que a estrutura assume forma de infinitivo no lugar de uma oração desenvolvida.", "B": "sujeito da oração, equivalente a uma oração subordinada substantiva subjetiva reduzida de infinitivo.", "C": "predicativo do sujeito, pois atribui uma qualidade ao verbo \"proibir\".", "D": "complemento nominal de um substantivo abstrato presente na oração.", "E": "aposto explicativo de um termo catafórico anterior."}, "correta": "B", "explicacao": "A construção equivale a \"É proibido [que se fume dentro do estabelecimento]\" — uma oração subordinada substantiva subjetiva reduzida de infinitivo, funcionando como sujeito do predicado \"é proibido\"."}, {"tema": "Figuras de linguagem / Litote", "enunciado": "\"O filme não foi nada mau\", para dizer que o filme foi, na verdade, muito bom, exemplifica a figura de linguagem chamada", "alternativas": {"A": "hipérbole, pois exagera abertamente a qualidade do filme.", "B": "litote, pois atenua uma afirmação positiva por meio da negação do seu contrário.", "C": "antítese, pois contrapõe diretamente duas ideias opostas sobre o filme.", "D": "metáfora, pois estabelece uma comparação implícita entre dois elementos.", "E": "ironia, pois expressa exatamente o oposto da intenção do falante."}, "correta": "B", "explicacao": "A litote é uma forma de atenuação que afirma algo por meio da negação do seu contrário (\"não é mau\" em vez de \"é bom\"), suavizando a afirmação positiva ou negativa de forma indireta."}, {"tema": "Variação linguística / Bidialetalismo", "enunciado": "O conceito de \"bidialetalismo\", defendido por diversos sociolinguistas como objetivo do ensino de língua materna, refere-se à", "alternativas": {"A": "capacidade de o falante dominar duas línguas estrangeiras diferentes simultaneamente.", "B": "capacidade de o falante transitar entre sua variedade de origem e a norma-padrão, conforme a exigência do contexto comunicativo.", "C": "obrigatoriedade de abandonar completamente a variedade de origem em favor da norma-padrão.", "D": "incapacidade linguística de falantes que utilizam apenas uma única variedade ao longo da vida.", "E": "prática exclusiva de tradução simultânea entre dialetos regionais distintos."}, "correta": "B", "explicacao": "O bidialetalismo é a capacidade de o falante dominar e alternar entre sua variedade de origem e a norma-padrão (ou outra variedade), usando cada uma no contexto apropriado — sem que isso implique abandonar a variedade original."}, {"tema": "Figuras de linguagem / Onomatopeia", "enunciado": "\"Tic-tac, tic-tac, o relógio na parede parecia mais alto do que nunca durante aquela espera angustiante.\"\n\nA palavra \"tic-tac\" exemplifica a figura de linguagem denominada", "alternativas": {"A": "onomatopeia, pois reproduz, por meio de sons da língua, um ruído ou som da realidade.", "B": "aliteração, pois repete sons consonantais ao longo do verso.", "C": "assonância, pois repete sons vocálicos ao longo do verso.", "D": "paronomásia, pois aproxima palavras de sons semelhantes e sentidos diferentes.", "E": "anáfora, pois repete um termo no início de versos consecutivos."}, "correta": "A", "explicacao": "A onomatopeia é a figura de linguagem que reproduz sonoramente, por meio das palavras, ruídos e sons da realidade — como o \"tic-tac\" do relógio."}, {"tema": "Sociolinguística / Conceito de língua e dialeto", "enunciado": "Sob o ponto de vista linguístico moderno, a distinção entre \"língua\" e \"dialeto\" é, em grande parte,", "alternativas": {"A": "puramente estrutural, baseada exclusivamente na complexidade gramatical de cada sistema.", "B": "política e social, já que linguisticamente todo dialeto é também um sistema linguístico pleno e estruturado, sem hierarquia inerente sobre outras variedades.", "C": "baseada no número de falantes, sendo \"língua\" sempre o sistema com mais falantes nativos.", "D": "uma questão exclusivamente fonética, relacionada apenas à pronúncia das palavras.", "E": "determinada unicamente pela existência de uma gramática normativa escrita e publicada."}, "correta": "B", "explicacao": "Linguisticamente, não há critério objetivo que torne uma \"língua\" superior a um \"dialeto\" — ambos são sistemas linguísticos completos e estruturados. A distinção costuma ser definida por fatores políticos e sociais (como o status de língua oficial de um Estado), não por critérios estritamente linguísticos."}, {"tema": "Figuras de linguagem / Comparação entre textos", "enunciado": "\"Ele é um leão em campo\" e \"Ele luta como um leão em campo\" diferem entre si porque", "alternativas": {"A": "a primeira é hipérbole e a segunda é eufemismo.", "B": "a primeira é metáfora (identidade implícita) e a segunda é comparação/símile (uso do conectivo \"como\").", "C": "ambas são exatamente a mesma figura de linguagem, sem qualquer distinção estrutural.", "D": "a primeira é antítese e a segunda é paradoxo.", "E": "a primeira é ironia e a segunda é prosopopeia."}, "correta": "B", "explicacao": "\"Ele é um leão\" funde os dois termos numa relação direta de identidade (metáfora). \"Ele luta como um leão\" mantém os termos separados, ligados pelo conectivo comparativo \"como\" (comparação ou símile)."}, {"tema": "Período composto / Substantiva reduzida", "enunciado": "\"Parece haver um erro nesse cálculo.\"\n\nO segmento \"haver um erro nesse cálculo\" representa uma oração subordinada substantiva", "alternativas": {"A": "objetiva direta reduzida de infinitivo, completando o sentido do verbo transitivo \"parecer\".", "B": "subjetiva reduzida de infinitivo, funcionando como sujeito do verbo \"parecer\".", "C": "predicativa reduzida de infinitivo, atribuindo qualidade ao sujeito oculto da oração.", "D": "completiva nominal reduzida, completando o sentido de um substantivo abstrato.", "E": "apositiva reduzida, explicando um termo catafórico mencionado anteriormente."}, "correta": "B", "explicacao": "A construção equivale a \"[Que haja um erro nesse cálculo] parece [verdade]\" — a oração reduzida de infinitivo funciona como sujeito do verbo \"parecer\", sendo, portanto, subjetiva reduzida de infinitivo."}, {"tema": "Variação linguística / Empréstimos linguísticos", "enunciado": "Palavras como \"mouse\", \"delivery\" e \"home office\", amplamente incorporadas ao português contemporâneo por influência do inglês, exemplificam um fenômeno linguístico relacionado à variação", "alternativas": {"A": "diatópica, pois são usadas apenas em regiões fronteiriças com países de língua inglesa.", "B": "diacrônica, pois refletem mudanças e incorporações lexicais ocorridas ao longo do tempo por contato linguístico.", "C": "diastrática, pois são usadas exclusivamente por falantes de classes sociais mais baixas.", "D": "diafásica, pois são usadas apenas em contextos extremamente formais e protocolares.", "E": "dialetal, pois constituem um dialeto regional específico do português."}, "correta": "B", "explicacao": "A incorporação de estrangeirismos ao léxico de uma língua, ao longo do tempo, por contato cultural e linguístico, é um exemplo de mudança diacrônica — a língua se transforma e incorpora novos termos historicamente."}, {"tema": "Figuras de linguagem / Análise contextual", "enunciado": "\"As lágrimas caíram como um aguaceiro de tristeza, e o coração, feito uma fortaleza em ruínas, não resistiu mais.\"\n\nNesse trecho, identificam-se, respectivamente, as figuras de linguagem", "alternativas": {"A": "comparação (\"como um aguaceiro de tristeza\") e metáfora (\"feito uma fortaleza em ruínas\").", "B": "metonímia e sinédoque, pois há substituição de termos contíguos em ambos os trechos.", "C": "ironia e eufemismo, pois há contradição seguida de suavização.", "D": "antítese e paradoxo, pois há contraste seguido de contradição reveladora.", "E": "prosopopeia e hipérbole, pois há humanização seguida de exagero."}, "correta": "A", "explicacao": "\"Como um aguaceiro\" usa conectivo comparativo explícito (comparação/símile). \"Feito uma fortaleza em ruínas\" funde o coração à fortaleza sem conectivo de igual valor comparativo direto, criando uma identidade metafórica entre os dois elementos."}, {"tema": "Sociolinguística / Prestígio social", "enunciado": "O fato de a pronúncia do \"r\" retroflexo (o \"r caipira\", como em \"porta\") ser frequentemente associada, no imaginário social, a uma fala \"inferior\" ou \"do interior\", ainda que seja foneticamente tão sistemática quanto qualquer outra pronúncia do \"r\", ilustra", "alternativas": {"A": "uma verdade linguística objetiva, comprovada cientificamente pela fonética articulatória.", "B": "um exemplo de estigma social atribuído a uma variante linguística sem fundamento estrutural, caracterizando preconceito linguístico.", "C": "uma característica exclusiva e isolada de uma única cidade brasileira.", "D": "uma regra da norma-padrão que deveria ser adotada por todos os falantes do português brasileiro.", "E": "uma evidência de que essa pronúncia é mais recente do que as demais variantes do \"r\"."}, "correta": "B", "explicacao": "Do ponto de vista fonético e linguístico, todas as pronúncias do \"r\" (retroflexo, vibrante, fricativo etc.) são igualmente sistemáticas e válidas. A associação do \"r caipira\" à inferioridade é puramente social e estigmatizante, um caso típico de preconceito linguístico."}, {"tema": "Figuras de linguagem / Zeugma", "enunciado": "\"Ana gosta de chocolate; Pedro, de sorvete.\"\n\nA omissão do verbo \"gosta\" na segunda parte da frase, facilmente recuperável pelo contexto anterior, caracteriza a figura de linguagem chamada", "alternativas": {"A": "zeugma, pois omite um termo (verbo) já expresso anteriormente no período.", "B": "elipse, pois omite um termo que nunca foi mencionado explicitamente no texto.", "C": "pleonasmo, pois repete uma informação redundante para dar ênfase.", "D": "anacoluto, pois rompe abruptamente a estrutura sintática esperada da frase.", "E": "hipérbato, pois inverte a ordem natural dos termos da oração."}, "correta": "A", "explicacao": "O zeugma é um tipo específico de elipse em que se omite um termo (geralmente um verbo) que já apareceu antes no texto, evitando repetição desnecessária: \"Pedro [gosta], de sorvete\"."}, {"tema": "Variação linguística / Conceito geral", "enunciado": "A heterogeneidade linguística — isto é, a existência de múltiplas variedades dentro de uma mesma língua — é considerada pela linguística moderna como", "alternativas": {"A": "um defeito do sistema linguístico que deveria ser eliminado por políticas de padronização.", "B": "uma característica inerente e constitutiva de toda língua viva, refletindo sua dinamicidade social, histórica e geográfica.", "C": "um fenômeno exclusivo do português brasileiro, ausente em outras línguas do mundo.", "D": "uma anomalia temporária que tende a desaparecer com a escolarização universal.", "E": "uma prova de que a língua portuguesa é mais complexa do que as demais línguas românicas."}, "correta": "B", "explicacao": "Toda língua viva e falada por uma comunidade ampla apresenta variação — regional, social, situacional, histórica. Essa heterogeneidade é constitutiva da própria natureza da língua, não uma anomalia ou defeito a ser corrigido."}, {"tema": "Figuras de linguagem / Comparação entre figuras", "enunciado": "Assinale a alternativa que descreve corretamente a diferença entre metáfora e alegoria.", "alternativas": {"A": "A metáfora é sempre mais longa que a alegoria, que se restringe a uma única palavra.", "B": "A alegoria é uma sequência prolongada de metáforas relacionadas, formando um sentido figurado contínuo ao longo de todo um texto; a metáfora costuma ser uma ocorrência pontual.", "C": "Não existe diferença real entre as duas figuras, sendo termos completamente intercambiáveis.", "D": "A metáfora se aplica somente à poesia, enquanto a alegoria se aplica apenas à prosa.", "E": "A alegoria nunca utiliza personificação, enquanto a metáfora sempre a utiliza."}, "correta": "B", "explicacao": "A alegoria é uma extensão da metáfora ao longo de um texto inteiro (ou de boa parte dele), constituindo uma rede coerente de sentidos figurados — como em fábulas. A metáfora, isoladamente, costuma ocorrer em um ponto específico do texto."}, {"tema": "Período composto / Substantiva x adjetiva (segunda bateria)", "enunciado": "Assinale a alternativa em que a oração sublinhada é subordinada substantiva, e não adjetiva.", "alternativas": {"A": "Comprei a casa que ficava na esquina da rua principal.", "B": "Acredito que essa solução resolverá todos os problemas.", "C": "O professor que me ensinou matemática se aposentou ano passado.", "D": "Conheço pessoas que nunca viajaram de avião.", "E": "Vi o filme que todos estavam comentando nas redes sociais."}, "correta": "B", "explicacao": "Em \"acredito que essa solução resolverá...\", a oração é objeto direto do verbo \"acreditar\" (substantiva objetiva direta). As demais alternativas (A, C, D, E) trazem orações adjetivas, que caracterizam um substantivo antecedente (\"casa\", \"professor\", \"pessoas\", \"filme\")."}, {"tema": "Sociolinguística / Função social da língua", "enunciado": "Quando um candidato a emprego ajusta seu vocabulário e tom de voz durante uma entrevista formal, evitando gírias que usaria normalmente com amigos, ele está exercendo, de forma consciente, sua competência", "alternativas": {"A": "morfológica, relacionada exclusivamente à formação interna das palavras.", "B": "comunicativa, que envolve a capacidade de adequar o discurso ao contexto social e à situação de fala.", "C": "fonológica, relacionada apenas aos sons da língua.", "D": "sintática, relacionada exclusivamente à ordem das palavras na frase.", "E": "semântica, relacionada apenas aos significados isolados das palavras."}, "correta": "B", "explicacao": "A competência comunicativa é a capacidade do falante de adequar seu discurso — vocabulário, registro, tom — ao contexto social e à situação comunicativa específica, indo além do conhecimento puramente gramatical (morfológico, sintático, fonológico)."}, {"tema": "Figuras de linguagem / Antítese em contexto", "enunciado": "\"Ela ria por fora, mas chorava por dentro; sorria para o mundo enquanto se afundava em silêncio.\"\n\nO contraste entre \"ria/sorria\" e \"chorava/se afundava em silêncio\" caracteriza a figura de linguagem", "alternativas": {"A": "metonímia, pois substitui um termo por outro contíguo no campo semântico.", "B": "antítese, pois aproxima ideias e sentimentos opostos sem gerar uma contradição lógica insolúvel.", "C": "catacrese, pois emprega termos técnicos fora de seu campo de origem.", "D": "sinédoque, pois representa o todo por uma de suas partes.", "E": "onomatopeia, pois reproduz sons da realidade por meio da linguagem."}, "correta": "B", "explicacao": "A antítese aproxima ideias contrárias (rir/chorar, sorrir/afundar em silêncio) de forma coerente, sem criar uma contradição lógica irresolúvel — apenas evidencia o contraste emocional vivido pela personagem."}, {"tema": "Variação linguística / Crioulos e contato linguístico", "enunciado": "O fato de o português brasileiro ter incorporado, ao longo de sua formação histórica, influências de línguas indígenas, africanas e de imigrantes europeus, resultando em uma variedade distinta do português europeu, exemplifica principalmente", "alternativas": {"A": "um processo de empobrecimento linguístico decorrente do contato com outras línguas.", "B": "um processo natural de formação e diversificação linguística por contato entre línguas, comum na história de qualquer idioma.", "C": "uma anomalia exclusiva do português brasileiro, sem paralelo em outras línguas do mundo.", "D": "uma prova de que o português brasileiro é uma língua \"impura\" em comparação ao europeu.", "E": "um fenômeno que comprova a superioridade estrutural do português europeu sobre o brasileiro."}, "correta": "B", "explicacao": "O contato entre línguas e a consequente diversificação são processos naturais e universais na formação de qualquer idioma — não configuram empobrecimento, impureza ou inferioridade, mas sim riqueza histórica e cultural."}, {"tema": "Período composto / Substantiva reduzida de infinitivo (objetiva)", "enunciado": "\"Os médicos recomendam evitar o consumo excessivo de sal.\"\n\nO segmento \"evitar o consumo excessivo de sal\" classifica-se como oração subordinada substantiva", "alternativas": {"A": "objetiva direta reduzida de infinitivo, funcionando como objeto direto do verbo \"recomendar\".", "B": "subjetiva reduzida de infinitivo, funcionando como sujeito da oração principal.", "C": "completiva nominal reduzida, completando o sentido de um substantivo abstrato.", "D": "predicativa reduzida, atribuindo característica ao sujeito da oração.", "E": "apositiva reduzida, explicando um termo catafórico mencionado anteriormente."}, "correta": "A", "explicacao": "A construção equivale a \"Os médicos recomendam [que se evite o consumo de sal]\". Como \"recomendar\" é transitivo direto, a oração reduzida de infinitivo funciona como seu objeto direto — objetiva direta reduzida de infinitivo."}, {"tema": "Figuras de linguagem / Revisão geral", "enunciado": "\"Suas palavras foram punhais que atravessaram meu peito, deixando feridas que o tempo nunca cicatrizou.\"\n\nA figura de linguagem predominante nesse trecho é a", "alternativas": {"A": "metáfora, pois há uma fusão implícita entre \"palavras\" e \"punhais\", criando uma relação direta de identidade.", "B": "metonímia, pois há substituição de um termo por outro relacionado por contiguidade.", "C": "eufemismo, pois há suavização do impacto emocional das palavras ditas.", "D": "eufemismo, pois há atenuação da dor causada pelas palavras.", "E": "eufemismo, pois há diminuição do sofrimento expresso na frase."}, "correta": "A", "explicacao": "\"Suas palavras foram punhais\" funde os dois elementos numa relação de identidade implícita (sem conectivo comparativo), o que define a metáfora — recurso comum para intensificar o impacto emocional de uma expressão."}, {"tema": "Sociolinguística / Multilinguismo e diversidade", "enunciado": "No Brasil, além do português, são faladas mais de 150 línguas indígenas, línguas de imigração (como o talian e o hunsrückisch) e línguas de sinais (como a Libras). Esse cenário de diversidade linguística é descrito pelos linguistas como", "alternativas": {"A": "um problema a ser resolvido por meio da imposição de uma única língua nacional obrigatória em todos os contextos.", "B": "multilinguismo ou plurilinguismo, uma riqueza cultural e linguística que deve ser reconhecida e, idealmente, preservada.", "C": "uma anomalia histórica recente, sem qualquer relevância para políticas linguísticas e educacionais.", "D": "uma situação exclusiva do Brasil, sem qualquer paralelo em outros países multilíngues do mundo.", "E": "um fenômeno que comprova a fragilidade institucional do português como língua oficial do país."}, "correta": "B", "explicacao": "A coexistência de múltiplas línguas em um mesmo território é chamada de multilinguismo (ou plurilinguismo), reconhecida pela linguística como patrimônio cultural a ser valorizado e preservado, e não como problema a ser eliminado."}, {"tema": "Período composto / Subordinada substantiva objetiva indireta (revisão)", "enunciado": "\"Os organizadores duvidavam de que o evento atingisse o público esperado.\"\n\nA oração destacada classifica-se como subordinada substantiva", "alternativas": {"A": "objetiva indireta, pois completa o sentido do verbo transitivo indireto \"duvidar\", regido pela preposição \"de\".", "B": "objetiva direta, pois completa diretamente o sentido do verbo sem mediação de preposição.", "C": "subjetiva, pois funciona como sujeito do verbo \"duvidar\".", "D": "completiva nominal, pois completa o sentido de um substantivo abstrato presente na frase.", "E": "predicativa, pois atribui uma característica ao sujeito \"os organizadores\"."}, "correta": "A", "explicacao": "\"Duvidar\" é verbo transitivo indireto, regendo a preposição \"de\". A oração \"que o evento atingisse o público esperado\", introduzida por essa preposição, completa o sentido do verbo — classificando-se como objetiva indireta."}, {"tema": "Figuras de linguagem / Antítese vs contraste simples", "enunciado": "Considere as duas frases:\nI. \"O dia é claro; a noite é escura.\"\nII. \"Na guerra, descobri a paz; na dor, encontrei a alegria mais profunda.\"\n\nSobre essas construções, é correto afirmar que", "alternativas": {"A": "ambas exemplificam exatamente a mesma figura de linguagem, sem qualquer distinção relevante.", "B": "I apresenta apenas contraste lexical comum (informação literal, não necessariamente figura elaborada), enquanto II constrói uma antítese mais expressiva, aproximando ideias opostas com intenção estilística.", "C": "I é hipérbole e II é eufemismo, dado o teor emocional de ambas as frases.", "D": "I é metáfora e II é metonímia, pois ambas envolvem substituição de sentido.", "E": "nenhuma das duas frases envolve qualquer tipo de contraste semântico."}, "correta": "B", "explicacao": "A simples menção de termos opostos (\"claro\"/\"escuro\") pode ser apenas informação literal. Já em II, a aproximação proposital de opostos (\"guerra/paz\", \"dor/alegria\") com intenção expressiva caracteriza a antítese como figura de linguagem."}, {"tema": "Variação linguística / Estigma e prestígio", "enunciado": "O fenômeno pelo qual uma mesma construção linguística (como a ausência de concordância verbal de número) é vista como \"charmosa\" ou \"estilo descontraído\" quando usada por uma celebridade, mas como \"erro grosseiro\" quando usada por uma pessoa de classe socioeconômica baixa, evidencia que", "alternativas": {"A": "a avaliação da fala depende exclusivamente de critérios gramaticais objetivos, sendo neutra quanto à classe social do falante.", "B": "o julgamento sobre o que é \"erro\" ou \"estilo\" muitas vezes reflete preconceito social e de classe, e não apenas critérios linguísticos.", "C": "celebridades possuem uma gramática especial, diferente e superior à das demais pessoas.", "D": "a ausência de concordância verbal é sempre considerada erro grave, independentemente de quem a produz.", "E": "esse fenômeno não tem qualquer relação com preconceito linguístico ou estigma social."}, "correta": "B", "explicacao": "O exemplo evidencia que muitos julgamentos sobre \"erro\" linguístico não se baseiam em critérios estritamente gramaticais, mas no status social de quem fala — um claro funcionamento do preconceito linguístico atrelado à classe social, não à estrutura da língua em si."}, {"tema": "Figuras de linguagem / Síntese metáfora-metonímia", "enunciado": "A diferença fundamental entre metáfora e metonímia está no tipo de relação que cada uma estabelece entre os termos envolvidos. Assinale a alternativa que descreve corretamente essa diferença.", "alternativas": {"A": "A metáfora baseia-se em relação de semelhança/analogia entre termos de campos diferentes; a metonímia baseia-se em relação de contiguidade (causa/efeito, parte/todo, autor/obra, recipiente/conteúdo).", "B": "A metáfora baseia-se em contiguidade; a metonímia baseia-se em semelhança, sendo o inverso do que tradicionalmente se ensina.", "C": "Ambas as figuras baseiam-se exclusivamente em relações de contiguidade espacial entre os termos.", "D": "A metáfora é usada apenas na linguagem técnica; a metonímia é usada apenas na linguagem poética.", "E": "Não há diferença estrutural relevante entre as duas figuras, sendo apenas nomes distintos para o mesmo fenômeno."}, "correta": "A", "explicacao": "A metáfora aproxima termos de campos semânticos distintos por semelhança/analogia (ex.: \"olhos são estrelas\"). A metonímia substitui um termo por outro que mantém relação de contiguidade real com ele (autor/obra, causa/efeito, parte/todo, recipiente/conteúdo)."}, {"tema": "Período composto / Revisão final substantivas", "enunciado": "\"A torcida tinha esperança de que o time conseguisse a classificação na última rodada do campeonato.\"\n\nA oração \"de que o time conseguisse a classificação na última rodada do campeonato\" classifica-se como subordinada substantiva", "alternativas": {"A": "completiva nominal, pois completa o sentido do substantivo abstrato \"esperança\", regido pela preposição \"de\".", "B": "objetiva direta, pois completa diretamente o sentido de um verbo transitivo direto.", "C": "subjetiva, pois funciona como sujeito do verbo \"ter\".", "D": "predicativa, pois atribui uma característica ao sujeito \"a torcida\".", "E": "apositiva, pois apenas explica um termo catafórico mencionado anteriormente."}, "correta": "A", "explicacao": "A oração completa o sentido do substantivo abstrato \"esperança\" (não de um verbo), sendo regida pela preposição \"de\" — características que definem a oração subordinada substantiva completiva nominal."}];
+
+const STORAGE_KEY = 'recuperacao_port_201_progress_v1';
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { acertos: {}, erros: {}, feitas: {} };
+    return JSON.parse(raw);
+  } catch(e) {
+    return { acertos: {}, erros: {}, feitas: {} };
+  }
+}
+
+function saveProgress(p) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch(e) {}
+}
+
+let progress = loadProgress();
+
+let session = {
+  questions: [],
+  index: 0,
+  answers: [],
+  mode: 'todas'
+};
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function questionKey(q, idx) {
+  return q.tema + '::' + q.enunciado.slice(0, 30) + '::' + idx;
+}
+
+// stable id based on content
+function qid(q) {
+  let str = q.enunciado;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 'q' + hash;
+}
+
+function updateHomeStats() {
+  const totalFeitas = Object.keys(progress.feitas).length;
+  const totalAcertos = Object.values(progress.acertos).reduce((a,b)=>a+b,0);
+  document.getElementById('stat-feitas').textContent = totalFeitas;
+  document.getElementById('stat-acertos').textContent = totalAcertos;
+  const errosIds = Object.keys(progress.erros).filter(id => progress.erros[id] > 0);
+  document.getElementById('erros-count').textContent = errosIds.length;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  updateHomeStats();
+  showScreen('screen-home');
+}
+
+function startQuiz(mode) {
+  let pool = QUESTOES.map(q => Object.assign({}, q, {_id: qid(q)}));
+
+  if (mode === 'rapido') {
+    pool = shuffle(pool).slice(0, 15);
+  } else if (mode === 'erros') {
+    const errosIds = Object.keys(progress.erros).filter(id => progress.erros[id] > 0);
+    pool = pool.filter(q => errosIds.includes(q._id));
+    if (pool.length === 0) {
+      alert('Você ainda não tem erros registrados. Faça o simulado completo primeiro!');
+      return;
+    }
+  }
+  // 'todas' uses full pool
+
+  pool = shuffle(pool);
+
+  session = {
+    questions: pool,
+    index: 0,
+    answers: [],
+    mode: mode
+  };
+
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function restartSame() {
+  startQuiz(session.mode);
+}
+
+function renderQuestion() {
+  const q = session.questions[session.index];
+  const total = session.questions.length;
+
+  document.getElementById('progress-bar').style.width = (session.index / total * 100) + '%';
+  document.getElementById('meta-counter').textContent = `Questão ${session.index + 1} de ${total}`;
+  document.getElementById('meta-tema').textContent = q.tema;
+  document.getElementById('qnum-label').textContent = `QUESTÃO ${session.index + 1}`;
+  document.getElementById('enunciado-text').textContent = q.enunciado;
+
+  const altList = document.getElementById('alt-list');
+  altList.innerHTML = '';
+
+  const letters = ['A','B','C','D','E'];
+  letters.forEach(letter => {
+    const div = document.createElement('div');
+    div.className = 'alt-option';
+    div.dataset.letter = letter;
+    div.innerHTML = `<div class="letter">${letter}</div><div>${q.alternativas[letter]}</div>`;
+    div.addEventListener('click', () => selectAnswer(letter));
+    altList.appendChild(div);
+  });
+
+  document.getElementById('explicacao-box').className = 'explicacao-box';
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('next-btn').textContent = 'Responda para continuar';
+}
+
+function selectAnswer(letter) {
+  const q = session.questions[session.index];
+  if (session.answers[session.index] !== undefined) return; // already answered
+
+  const isCorrect = letter === q.correta;
+  session.answers[session.index] = { letter, isCorrect };
+
+  // persist progress
+  const id = q._id;
+  progress.feitas[id] = true;
+  if (isCorrect) {
+    progress.acertos[id] = (progress.acertos[id] || 0) + 1;
+    progress.erros[id] = 0;
+  } else {
+    progress.erros[id] = (progress.erros[id] || 0) + 1;
+  }
+  saveProgress(progress);
+
+  // visual feedback
+  document.querySelectorAll('.alt-option').forEach(opt => {
+    opt.classList.add('disabled');
+    const l = opt.dataset.letter;
+    if (l === q.correta) {
+      opt.classList.add('correct');
+    } else if (l === letter && !isCorrect) {
+      opt.classList.add('incorrect');
+    } else {
+      opt.classList.add('muted');
+    }
+  });
+
+  const box = document.getElementById('explicacao-box');
+  box.className = 'explicacao-box show ' + (isCorrect ? 'right' : 'wrong');
+  document.getElementById('explicacao-head').textContent = isCorrect
+    ? '✓ Resposta correta!'
+    : `✗ Resposta incorreta — a correta é a ${q.correta}`;
+  document.getElementById('explicacao-text').textContent = q.explicacao;
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = false;
+  nextBtn.textContent = (session.index === session.questions.length - 1) ? 'Ver resultado' : 'Próxima questão →';
+}
+
+function nextQuestion() {
+  if (session.index < session.questions.length - 1) {
+    session.index++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const total = session.questions.length;
+  const acertos = session.answers.filter(a => a && a.isCorrect).length;
+  const pct = Math.round((acertos / total) * 100);
+
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-frac').textContent = `${acertos}/${total}`;
+
+  let title, msg;
+  if (pct >= 80) {
+    title = 'Excelente!';
+    msg = 'Você domina muito bem esses conteúdos.';
+  } else if (pct >= 60) {
+    title = 'Bom resultado';
+    msg = 'Está no caminho certo — revise os temas que errou.';
+  } else if (pct >= 40) {
+    title = 'Continue estudando';
+    msg = 'Vale revisar a matéria com mais atenção antes da prova.';
+  } else {
+    title = 'Hora de revisar';
+    msg = 'Releia o material sobre estes temas e tente de novo.';
+  }
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-msg').textContent = msg;
+
+  // breakdown by tema
+  const temaStats = {};
+  session.questions.forEach((q, i) => {
+    const ans = session.answers[i];
+    if (!temaStats[q.tema]) temaStats[q.tema] = { total: 0, acertos: 0 };
+    temaStats[q.tema].total++;
+    if (ans && ans.isCorrect) temaStats[q.tema].acertos++;
+  });
+
+  const temaList = document.getElementById('tema-list');
+  temaList.innerHTML = '';
+  Object.keys(temaStats).sort().forEach(tema => {
+    const s = temaStats[tema];
+    const row = document.createElement('div');
+    row.className = 'tema-row';
+    const ratio = s.acertos / s.total;
+    row.innerHTML = `<div class="tema-name">${tema}</div><div class="tema-score ${ratio >= 0.6 ? 'good' : 'bad'}">${s.acertos}/${s.total}</div>`;
+    temaList.appendChild(row);
+  });
+
+  showScreen('screen-result');
+}
+
+function resetProgress() {
+  if (confirm('Isso vai apagar todo o seu histórico de acertos e erros salvos neste navegador. Continuar?')) {
+    progress = { acertos: {}, erros: {}, feitas: {} };
+    saveProgress(progress);
+    updateHomeStats();
+  }
+}
+
+updateHomeStats();
+</script>
+
+</body>
+</html>
